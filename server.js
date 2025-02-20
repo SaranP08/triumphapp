@@ -5,37 +5,41 @@ const cors = require("cors");
 const path = require("path");
 const authRoutes = require("./routes/auth");
 const bikeRoutes = require("./routes/bikes");
-const authenticateToken = require("./middleware/auth"); // ✅ Import authentication middleware
+const auth = require("./middleware/auth"); // ✅ Fixed import
+const User = require("./models/user"); // ✅ Fixed missing User model
 
 const app = express();
 app.use(express.json());
 
-// ✅ Simple Middleware to Log API Requests
+// ✅ Improved Middleware to Log API Requests (Excludes Profile)
 app.use((req, res, next) => {
-  console.log(`📡 ${req.method} Request to ${req.url}`);
+  if (req.url !== "/api/profile") {
+    console.log(`📡 ${req.method} Request to ${req.url}`);
+  }
   next();
 });
 
-// ✅ Allow CORS for all requests (important for Cordova)
+// ✅ Allow CORS for All Requests (Important for Cordova)
 app.use(
   cors({
-    origin: "*", // ✅ Allow any domain
+    origin: "*", // ✅ Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // ✅ Added PUT & PATCH
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization"], // ✅ Ensure Authorization is allowed
   })
 );
 
+// ✅ Routes
 app.use("/", authRoutes);
 app.use("/api", bikeRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Profile Route - Requires Authentication
-app.get("/profile", authenticateToken, async (req, res) => {
+// ✅ Fixed: Profile Route Now Uses `/api/profile`
+app.get("/api/profile", auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password"); // ✅ Hide password
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.json(user); // ✅ Send user details
+    res.json(user);
   } catch (error) {
     console.error("❌ Error fetching profile:", error);
     res.status(500).json({ error: "Server error" });
