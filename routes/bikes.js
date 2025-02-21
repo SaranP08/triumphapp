@@ -38,7 +38,7 @@ router.post("/bikes", auth, upload.single("image"), async (req, res) => {
       userName: user.name, // Store userName instead of userId
       bikeName: name,
       kmsDriven: kms,
-      imageUrl,
+      imageUrl: `/api/uploads/${req.file.filename}`, // ✅ Corrected image URL
     });
 
     await newBike.save();

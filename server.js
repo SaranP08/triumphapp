@@ -31,7 +31,7 @@ app.use(
 // ✅ Routes
 app.use("/", authRoutes);
 app.use("/api", bikeRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ✅ Fixed: Profile Route Now Uses `/api/profile`
 app.get("/api/profile", auth, async (req, res) => {
